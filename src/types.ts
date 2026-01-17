@@ -1,6 +1,7 @@
 export interface Task {
   id: string;      
   content: string; 
+  task_time: number;
 }
 
 
