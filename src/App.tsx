@@ -34,23 +34,60 @@ function App() {
   const [columns, setColumns] = useState(initialData)
 
   const onDragEnd = (result: any) => {
-    const tasksList = columns.find((column)=>column.id === result.destination.droppableId)?.tasks
-    const newTasks = [...tasksList]
-    const [removedTask] = newTasks.splice(result.source.index,1)
-    newTasks.splice(result.destination.index, 0, removedTask);
-    console.log('newTasks',newTasks);
+    if (result.source.droppableId === result.destination.droppableId) {
+      const tasksList = columns.find((column) => column.id === result.destination.droppableId)?.tasks
+      const newTasks = [...tasksList];
+      const [removedTask] = newTasks.splice(result.source.index, 1);
+      newTasks.splice(result.destination.index, 0, removedTask);
+      console.log('newTasks', newTasks);
 
-    const newColumns = columns.map(column => {
-      if (column.id=== result.destination.droppableId) {
-        return{
-          ...column,
-          tasks: newTasks
+      const newColumns = columns.map(column => {
+        if (column.id === result.destination.droppableId) {
+          return {
+            ...column,
+            tasks: newTasks
+          }
+        } else { return column }
+
+
+      })
+
+      setColumns(newColumns)
+    } else {
+      console.log(result);
+
+      const sourceColumn = result.source.droppableId
+      console.log('sourceColumn',sourceColumn);
+
+      const destColumn = result.destination.droppableId
+
+
+      const sourceTasksList = columns.find((column) => column.id === sourceColumn)?.tasks
+      const sourceNewTasks = [...sourceTasksList]
+      const [removedTask] = sourceNewTasks.splice(result.source.index,1)
+
+      const destTasksList = columns.find((column)=> column.id === destColumn)?.tasks
+      const destNewTasks = [...destTasksList]
+      destNewTasks.splice(result.destination.index,0,removedTask)
+
+      const newColumns = columns.map((column)=>{
+        if (column.id===sourceColumn) {
+          return{
+            ...column,
+            tasks:sourceNewTasks
+          }
         }
-      } else{return column}
-    })
+        if (column.id===destColumn) {
+          return{
+            ...column,
+            tasks:destNewTasks
+          }
+        }
+        return column
+      })
 
-    setColumns(newColumns)
-
+      setColumns(newColumns) 
+    }
   }
 
   return (
@@ -106,12 +143,12 @@ function App() {
 
                             {(provided) => (
                               <li
-                                
-                                
+
+
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                 >
+                              >
                                 <div className="shrink-1 border rounded-md bg-slate-50 px-2 py-4">
                                   <h3 className="font-bold" >{task.content}</h3>
 
