@@ -33,13 +33,19 @@ function App() {
 
   const [columns, setColumns] = useState(initialData)
 
-  const onDragEnd = (result: any) => {
+  
+  const onDragEnd = (result: any) => { 
+    
+    if (!result.destination) {
+      return;
+    }
+
+
     if (result.source.droppableId === result.destination.droppableId) {
       const tasksList = columns.find((column) => column.id === result.destination.droppableId)?.tasks
       const newTasks = [...tasksList];
       const [removedTask] = newTasks.splice(result.source.index, 1);
       newTasks.splice(result.destination.index, 0, removedTask);
-      console.log('newTasks', newTasks);
 
       const newColumns = columns.map(column => {
         if (column.id === result.destination.droppableId) {
@@ -54,39 +60,34 @@ function App() {
 
       setColumns(newColumns)
     } else {
-      console.log(result);
 
       const sourceColumn = result.source.droppableId
-      console.log('sourceColumn',sourceColumn);
-
-      const destColumn = result.destination.droppableId
-
-
       const sourceTasksList = columns.find((column) => column.id === sourceColumn)?.tasks
       const sourceNewTasks = [...sourceTasksList]
-      const [removedTask] = sourceNewTasks.splice(result.source.index,1)
+      const [removedTask] = sourceNewTasks.splice(result.source.index, 1)
 
-      const destTasksList = columns.find((column)=> column.id === destColumn)?.tasks
+      const destColumn = result.destination.droppableId
+      const destTasksList = columns.find((column) => column.id === destColumn)?.tasks
       const destNewTasks = [...destTasksList]
-      destNewTasks.splice(result.destination.index,0,removedTask)
+      destNewTasks.splice(result.destination.index, 0, removedTask)
 
-      const newColumns = columns.map((column)=>{
-        if (column.id===sourceColumn) {
-          return{
+      const newColumns = columns.map((column) => {
+        if (column.id === sourceColumn) {
+          return {
             ...column,
-            tasks:sourceNewTasks
+            tasks: sourceNewTasks
           }
         }
-        if (column.id===destColumn) {
-          return{
+        if (column.id === destColumn) {
+          return {
             ...column,
-            tasks:destNewTasks
+            tasks: destNewTasks
           }
         }
         return column
       })
 
-      setColumns(newColumns) 
+      setColumns(newColumns)
     }
   }
 
