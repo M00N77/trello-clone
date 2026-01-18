@@ -1,12 +1,13 @@
 import { useState } from "react";
 import type { Column } from "./types"
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 
 
 
 
 const initialData: Column[] = [
-    {
+  {
     id: 'col-1',
     title: 'To Do',
     tasks: [
@@ -26,13 +27,32 @@ const initialData: Column[] = [
       { id: '5', content: 'Выпить чаю', task_time: 5 },
     ]
   }
-  ];
+];
 
 function App() {
 
-  const [columns,setColumns] = useState(initialData)
+  const [columns, setColumns] = useState(initialData)
 
-  
+  const onDragEnd = (result: any) => {
+    const tasksList = columns.find((column)=>column.id === result.destination.droppableId)?.tasks
+    const newTasks = [...tasksList]
+    const [removedTask] = newTasks.splice(result.source.index,1)
+    newTasks.splice(result.destination.index, 0, removedTask);
+    console.log('newTasks',newTasks);
+
+    const newColumns = columns.map(column => {
+      if (column.id=== result.destination.droppableId) {
+        return{
+          ...column,
+          tasks: newTasks
+        }
+      } else{return column}
+    })
+
+    setColumns(newColumns)
+
+  }
+
   return (
     <>
 
@@ -59,46 +79,59 @@ function App() {
         <div>
           <div>main_header</div>
 
-          <div className="flex gap-x-10">
-          
 
-          {columns.map(column=>(
-             
+          <DragDropContext onDragEnd={onDragEnd} >
+            <div className="flex gap-x-10">
 
-            
-            
-              <div className=" flex flex-col border w-72  shrink-0" key={column.id}>
-              <h2 className="text-center px-3 py-2 font-bold">{column.title}</h2>
-              <div>
-                <ul className="flex flex-col gap-y-4 ">
 
-                  {column.tasks.map(task=>(
-                    <li className="" key={task.id}>
-                    <div className="shrink-1 border rounded-md bg-slate-100 px-2 py-4">
-                      <h3 className="font-bold" >{task.content}</h3>
+              {columns.map(column => (
 
-                      <p className="inline-flex p-1 rounded-lg text-red-500  bg-red-100 text-xs font-semibold" >19 часов</p>
-                    </div>
-                  </li>
-                  ))}
-                  
 
-                  
 
-                </ul>
-              </div>
+
+                <div className=" flex flex-col border w-72  shrink-0" key={column.id}>
+                  <h2 className="text-center px-3 py-2 font-bold">{column.title}</h2>
+
+                  <Droppable droppableId={column.id}>
+
+                    {(provided) => (
+                      <ul
+                        className="flex flex-col gap-y-4 "
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                      >
+                        {column.tasks.map((task, index) => (
+
+                          <Draggable key={task.id} draggableId={task.id} index={index} >
+
+                            {(provided) => (
+                              <li
+                                
+                                
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                 >
+                                <div className="shrink-1 border rounded-md bg-slate-50 px-2 py-4">
+                                  <h3 className="font-bold" >{task.content}</h3>
+
+                                  <p className="inline-flex p-1 rounded-lg text-red-500  bg-red-100 text-xs font-semibold" >{task.task_time}</p>
+                                </div>
+                              </li>
+                            )}
+
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </ul>)}
+
+                  </Droppable>
+                </div>
+              )
+              )}
             </div>
-            )
-          )}
+          </DragDropContext>
 
-            
-
-            
-
-            
-
-            
-          </div>
         </div>
       </main>
 
