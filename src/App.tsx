@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import type { Column } from "./types"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { v4 as uuidv4 } from 'uuid';
 
 
 
 
 
-const initialData: Column[] =  [
+const initialData: Column[] = [
   {
     id: 'col-1',
     title: 'To Do',
@@ -30,27 +31,27 @@ const initialData: Column[] =  [
 ];
 
 function App() {
-  
-  const [columns, setColumns] = useState(()=>{
+
+  const [columns, setColumns] = useState(() => {
     const saved = localStorage.getItem('storedColumns')
 
-    if(saved){
-      try{
+    if (saved) {
+      try {
         return JSON.parse(saved)
-      } catch {
+      } catch (e) {
         console.error('error parse', e)
       }
     }
 
     return initialData
   })
-  useEffect(()=>{
+  useEffect(() => {
     localStorage.setItem('storedColumns', JSON.stringify(columns))
-  },[columns])
+  }, [columns])
 
-  
-  const onDragEnd = (result: any) => { 
-    
+
+  const onDragEnd = (result: any) => {
+
     if (!result.destination) {
       return;
     }
@@ -102,13 +103,46 @@ function App() {
         return column
       })
 
-        setColumns(newColumns)
-        
-      
-      
-      
+      setColumns(newColumns)
+
+
+
+
     }
   }
+
+  const handleAddTask = (column_id: any) => {
+    console.log('column_id', column_id);
+
+    const taskContent = prompt('Enter task')
+    const taskTime = prompt('Enter time')
+
+    if (isNaN(taskTime) || taskTime < 0) {
+      alert('Please enter correct number...')
+      return
+    }
+    const newTask = { id: uuidv4(), content: taskContent, task_time: taskTime }
+
+    const tasksList = columns.find((column) => column.id === column_id)?.tasks
+
+    const newTasks = [ ...tasksList, newTask ]
+
+
+
+    const newColumns = columns.map((column)=>{
+      if (column.id===column_id) {
+        return {
+          ...column,
+          tasks:newTasks
+        }
+      }
+      return column
+    })
+    setColumns(newColumns)
+  }
+
+
+
 
   return (
     <>
@@ -146,12 +180,14 @@ function App() {
 
 
 
-                <div className=" flex flex-col border w-72  shrink-0" key={column.id}>
+                <div className=" flex flex-col  align-top border w-72  shrink-0" key={column.id}>
+
                   <h2 className="text-center px-3 py-2 font-bold">{column.title}</h2>
 
                   <Droppable droppableId={column.id}>
 
                     {(provided) => (
+
                       <ul
                         className="flex flex-col gap-y-4 "
                         ref={provided.innerRef}
@@ -162,7 +198,7 @@ function App() {
                           <Draggable key={task.id} draggableId={task.id} index={index} >
 
                             {(provided) => (
-                              <li
+                              <li className="flex flex-col"
 
 
                                 ref={provided.innerRef}
@@ -174,12 +210,17 @@ function App() {
 
                                   <p className="inline-flex p-1 rounded-lg text-red-500  bg-red-100 text-xs font-semibold" >{task.task_time}</p>
                                 </div>
+
                               </li>
                             )}
 
                           </Draggable>
                         ))}
                         {provided.placeholder}
+                        <button
+                          className="bg-slate-50 px-1 py-2"
+                          onClick={() => handleAddTask(column.id)}
+                        >Add task</button>
                       </ul>)}
 
                   </Droppable>
@@ -191,6 +232,8 @@ function App() {
 
         </div>
       </main>
+
+
 
     </>
   )
