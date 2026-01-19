@@ -6,7 +6,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 
 
-const initialData: Column[] = [
+const initialData: Column[] =  [
   {
     id: 'col-1',
     title: 'To Do',
@@ -30,8 +30,13 @@ const initialData: Column[] = [
 ];
 
 function App() {
-
-  const [columns, setColumns] = useState(initialData)
+  const [storedColumns,setStoredColumns] = useState(()=>{
+    const saved = localStorage.getItem('newColumns');
+    const initialValue = JSON.parse(saved);
+    return initialValue || "";
+  })
+  const [columns, setColumns] = useState(storedColumns?storedColumns:initialData)
+  
 
   
   const onDragEnd = (result: any) => { 
@@ -87,7 +92,11 @@ function App() {
         return column
       })
 
-      setColumns(newColumns)
+        setColumns(newColumns)
+        setStoredColumns(localStorage.setItem('newColumns', JSON.stringify(newColumns)))
+      
+      
+      
     }
   }
 
