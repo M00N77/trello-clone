@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Column } from "./types"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
@@ -30,13 +30,23 @@ const initialData: Column[] =  [
 ];
 
 function App() {
-  const [storedColumns,setStoredColumns] = useState(()=>{
-    const saved = localStorage.getItem('newColumns');
-    const initialValue = JSON.parse(saved);
-    return initialValue || "";
-  })
-  const [columns, setColumns] = useState(storedColumns?storedColumns:initialData)
   
+  const [columns, setColumns] = useState(()=>{
+    const saved = localStorage.getItem('storedColumns')
+
+    if(saved){
+      try{
+        return JSON.parse(saved)
+      } catch {
+        console.error('error parse', e)
+      }
+    }
+
+    return initialData
+  })
+  useEffect(()=>{
+    localStorage.setItem('storedColumns', JSON.stringify(columns))
+  },[columns])
 
   
   const onDragEnd = (result: any) => { 
@@ -93,7 +103,7 @@ function App() {
       })
 
         setColumns(newColumns)
-        setStoredColumns(localStorage.setItem('newColumns', JSON.stringify(newColumns)))
+        
       
       
       
