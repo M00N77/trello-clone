@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import type { Column } from "./types"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { v4 as uuidv4 } from 'uuid';
+import TaskItem from "./components/TaskItem";
+import ColumnItem from "./components/ColumnItem";
 
 const initialData: Column[] = [
   {
@@ -100,7 +102,7 @@ function App() {
     }
   }
 
-  const handleDeleteTask = (column_id:any,task_id:any) => { 
+  const handleDeleteTask = (column_id:string,task_id:string) => { 
     
 
     const tasksList = columns.find((column) => column.id === column_id)?.tasks || []
@@ -119,8 +121,6 @@ function App() {
   }
 
   const handleAddTask = (column_id: any) => {
-    console.log('column_id', column_id);
-
     const taskContent = prompt('Enter task')
     const taskTime = prompt('Enter time')
 
@@ -180,57 +180,7 @@ function App() {
 
               {columns.map(column => (
 
-                <div className=" flex flex-col  align-top border w-72  shrink-0" key={column.id}>
-
-                  <h2 className="text-center px-3 py-2 font-bold">{column.title}</h2>
-
-                  
-                  <Droppable droppableId={column.id}>
-
-                    {(provided) => (
-
-                      <ul
-                        className="flex flex-col gap-y-4 "
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                      >
-                        {column.tasks.map((task, index) => (
-
-                          <Draggable key={task.id} draggableId={task.id} index={index} >
-
-                            {(provided) => (
-                              <li className="flex flex-col"
-
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                              > 
-                                
-                                <div className="shrink-1 border rounded-md bg-slate-50 px-2 py-4">
-                                  <div className="flex justify-between ">
-                                  <h3 className="font-bold" >{task.content}</h3>
-                                  <button 
-                                  className="  flex justify-center items-center text-center font-bold  rounded-md bg-red-500 text-xs px-2" 
-                                  onClick={()=>{handleDeleteTask(column.id,task.id)}}
-                                  >Delete</button>
-                                  
-                                  </div>
-                                  <p className="inline-flex p-1 rounded-lg text-red-500  bg-red-100 text-xs font-semibold" >{task.task_time}</p>
-                                  
-                                </div>
-                              </li>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                        <button
-                          className="bg-slate-50 px-1 py-2"
-                          onClick={() => handleAddTask(column.id)}
-                        >Add task</button>
-                      </ul>)}
-
-                  </Droppable>
-                </div>
+                <ColumnItem  key={column.id} column={column} onHandleAddTask={handleAddTask} onHandleDeleteTask={handleDeleteTask} />
               )
               )}
             </div>
