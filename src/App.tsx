@@ -3,10 +3,6 @@ import type { Column } from "./types"
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { v4 as uuidv4 } from 'uuid';
 
-
-
-
-
 const initialData: Column[] = [
   {
     id: 'col-1',
@@ -45,17 +41,16 @@ function App() {
 
     return initialData
   })
+
   useEffect(() => {
     localStorage.setItem('storedColumns', JSON.stringify(columns))
   }, [columns])
-
 
   const onDragEnd = (result: any) => {
 
     if (!result.destination) {
       return;
     }
-
 
     if (result.source.droppableId === result.destination.droppableId) {
       const tasksList = columns.find((column) => column.id === result.destination.droppableId)?.tasks
@@ -70,8 +65,6 @@ function App() {
             tasks: newTasks
           }
         } else { return column }
-
-
       })
 
       setColumns(newColumns)
@@ -104,11 +97,25 @@ function App() {
       })
 
       setColumns(newColumns)
-
-
-
-
     }
+  }
+
+  const handleDeleteTask = (column_id:any,task_id:any) => { 
+    
+
+    const tasksList = columns.find((column) => column.id === column_id)?.tasks || []
+    const newTasks = tasksList.filter((task)=>task.id!==task_id)
+    
+    const newColumns = columns.map((column)=>{
+      if (column.id===column_id) {
+        return{
+          ...column,
+          tasks: newTasks
+        }
+      }
+        return column
+    })
+    setColumns(newColumns)
   }
 
   const handleAddTask = (column_id: any) => {
@@ -141,9 +148,6 @@ function App() {
     setColumns(newColumns)
   }
 
-
-
-
   return (
     <>
 
@@ -168,22 +172,19 @@ function App() {
 
       <main className="flex justify-center items-center">
         <div>
-          <div>main_header</div>
 
+          <div>main_header</div>
 
           <DragDropContext onDragEnd={onDragEnd} >
             <div className="flex gap-x-10">
 
-
               {columns.map(column => (
-
-
-
 
                 <div className=" flex flex-col  align-top border w-72  shrink-0" key={column.id}>
 
                   <h2 className="text-center px-3 py-2 font-bold">{column.title}</h2>
 
+                  
                   <Droppable droppableId={column.id}>
 
                     {(provided) => (
@@ -200,20 +201,25 @@ function App() {
                             {(provided) => (
                               <li className="flex flex-col"
 
-
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                              >
+                              > 
+                                
                                 <div className="shrink-1 border rounded-md bg-slate-50 px-2 py-4">
+                                  <div className="flex justify-between ">
                                   <h3 className="font-bold" >{task.content}</h3>
-
+                                  <button 
+                                  className="  flex justify-center items-center text-center font-bold  rounded-md bg-red-500 text-xs px-2" 
+                                  onClick={()=>{handleDeleteTask(column.id,task.id)}}
+                                  >Delete</button>
+                                  
+                                  </div>
                                   <p className="inline-flex p-1 rounded-lg text-red-500  bg-red-100 text-xs font-semibold" >{task.task_time}</p>
+                                  
                                 </div>
-
                               </li>
                             )}
-
                           </Draggable>
                         ))}
                         {provided.placeholder}
@@ -232,9 +238,6 @@ function App() {
 
         </div>
       </main>
-
-
-
     </>
   )
 }
