@@ -124,7 +124,7 @@ function App() {
     const taskContent = prompt('Enter task')
     const taskTime = prompt('Enter time')
 
-    if (isNaN(taskTime) || taskTime < 0) {
+    if (isNaN(taskTime) || taskTime < 0 || taskTime==='') {
       alert('Please enter correct number...')
       return
     }
@@ -181,6 +181,20 @@ function App() {
     setColumns(newColumns)
   }
 
+  const handleAddColumn = () => {
+    const columnName = prompt('Enter name column')
+    if (!columnName) return
+
+    const newColumn: Column = {
+      id: uuidv4(),
+      title: columnName,
+      tasks: []
+    }
+
+    const newColumns = [...columns, newColumn]
+    setColumns(newColumns)
+  }
+
   return (
     <>
 
@@ -220,10 +234,11 @@ function App() {
                   onHandleDeleteTask={handleDeleteTask}
                   onHandleEditTaskContent={handleEditTaskContent}
                   onHandleDeleteColumn={handleDeleteColumn}
+
                 />
               )
               )}
-              <button className="size-14 bg-slate-50 px-1 py-2 rounded-md bg-green-400">Add</button>
+              <button className="size-14 bg-slate-50 px-1 py-2 rounded-md bg-green-400" onClick={handleAddColumn} >Add</button>
             </div>
           </DragDropContext>
 
