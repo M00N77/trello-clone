@@ -1,7 +1,6 @@
 import { Draggable } from "@hello-pangea/dnd"
 import type { Task, Column } from "../types";
 
-
 interface TaskItemProps {
     column: Column;
     task: Task;
@@ -26,12 +25,12 @@ const TaskItem = ({ column, task, index, onHandleDeleteTask,onHandleEditTaskCont
                         <div className="flex justify-between ">
                             <h3 className="font-bold" onClick={()=>onHandleEditTaskContent(column.id,task.id)}>{task.content}</h3>
                             <button
-                                className="  flex justify-center items-center text-center font-bold  rounded-md bg-red-500 text-xs px-2"
+                                className="  flex justify-center items-center text-center font-bold  rounded-md bg-red-400 text-xs px-2"
                                 onClick={() => { onHandleDeleteTask(column.id, task.id) }}
                             >Delete</button>
 
                         </div>
-                        <p className="inline-flex p-1 rounded-lg text-red-500  bg-red-100 text-xs font-semibold" >{task.task_time}</p>
+                        <p className="inline-flex p-1 rounded-lg text-red-400  bg-red-100 text-xs font-semibold" >{task.task_time}</p>
 
                     </div>
                 </li>

@@ -2,44 +2,50 @@ import TaskItem from "./TaskItem"
 import { Droppable } from "@hello-pangea/dnd"
 import type { Column } from "../types";
 
-interface ColumnItemsProps { 
+interface ColumnItemsProps {
   column: Column,
-  onHandleAddTask: (columnId : string) => void,
-  onHandleDeleteTask: (colimnId:string,taskId:string)=>void;
-  onHandleEditTaskContent: (columnId:string,taskId:string) => void;
-  
+  onHandleAddTask: (columnId: string) => void,
+  onHandleDeleteTask: (colimnId: string, taskId: string) => void;
+  onHandleEditTaskContent: (columnId: string, taskId: string) => void;
+  onHandleDeleteColumn: (columnId: string) => void;
+
 }
 
-const ColumnItem = ({column,onHandleAddTask,onHandleDeleteTask,onHandleEditTaskContent}:ColumnItemsProps) => { 
-    return (
-        <div className=" flex flex-col  align-top border w-72 rounded-md shrink-0" key={column.id}>
+const ColumnItem = ({ column, onHandleAddTask, onHandleDeleteTask, onHandleEditTaskContent, onHandleDeleteColumn }: ColumnItemsProps) => {
+  return (
+    <div className=" flex flex-col  align-top border w-72 rounded-md shrink-0" key={column.id}>
+      <div className="flex justify-between items-center px-3 py-2">
+        <h2 className="text-center  font-bold">{column.title}</h2>
+        <button
+          className="text-xs text-red-300 font-bold"
+          onClick={() => onHandleDeleteColumn(column.id)}
+        >X</button>
+      </div>
 
-                  <h2 className="text-center px-3 py-2 font-bold">{column.title}</h2>
+      <Droppable droppableId={column.id} >
 
-                  
-                  <Droppable droppableId={column.id}>
+        {(provided) => (
 
-                    {(provided) => (
+          <ul
+            className="flex flex-col gap-y-4 "
+            ref={provided.innerRef}
+            {...provided.droppableProps}
 
-                      <ul
-                        className="flex flex-col gap-y-4 "
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                      >
-                        {column.tasks.map((task, index) => (
+          >
+            {column.tasks.map((task, index) => (
 
-                          <TaskItem key={task.id} column={column} task={task} index={index} onHandleDeleteTask={onHandleDeleteTask} onHandleEditTaskContent={onHandleEditTaskContent} />
-                        ))}
-                        {provided.placeholder}
-                        <button
-                          className="bg-slate-50 px-1 py-2 rounded-md"
-                          onClick={() => onHandleAddTask(column.id)}
-                        >Add task</button>
-                      </ul>)}
+              <TaskItem key={task.id} column={column} task={task} index={index} onHandleDeleteTask={onHandleDeleteTask} onHandleEditTaskContent={onHandleEditTaskContent} />
+            ))}
+            {provided.placeholder}
+            <button
+              className="bg-slate-50 px-1 py-2 rounded-md"
+              onClick={() => onHandleAddTask(column.id)}
+            >Add task</button>
+          </ul>)}
 
-                  </Droppable>
-                </div>
-    )
+      </Droppable>
+    </div>
+  )
 }
 
 export default ColumnItem

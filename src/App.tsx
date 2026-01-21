@@ -102,20 +102,20 @@ function App() {
     }
   }
 
-  const handleDeleteTask = (column_id:string,task_id:string) => { 
-    
+  const handleDeleteTask = (column_id: string, task_id: string) => {
+
 
     const tasksList = columns.find((column) => column.id === column_id)?.tasks || []
-    const newTasks = tasksList.filter((task)=>task.id!==task_id)
-    
-    const newColumns = columns.map((column)=>{
-      if (column.id===column_id) {
-        return{
+    const newTasks = tasksList.filter((task) => task.id !== task_id)
+
+    const newColumns = columns.map((column) => {
+      if (column.id === column_id) {
+        return {
           ...column,
           tasks: newTasks
         }
       }
-        return column
+      return column
     })
     setColumns(newColumns)
   }
@@ -132,15 +132,15 @@ function App() {
 
     const tasksList = columns.find((column) => column.id === column_id)?.tasks
 
-    const newTasks = [ ...tasksList, newTask ]
+    const newTasks = [...tasksList, newTask]
 
 
 
-    const newColumns = columns.map((column)=>{
-      if (column.id===column_id) {
+    const newColumns = columns.map((column) => {
+      if (column.id === column_id) {
         return {
           ...column,
-          tasks:newTasks
+          tasks: newTasks
         }
       }
       return column
@@ -148,30 +148,36 @@ function App() {
     setColumns(newColumns)
   }
 
-  const handleEditTaskContent = (column_id : string, task_id : string) => { 
-    
-    const newTaskContent = prompt('Enter new name taks')
-    const tasksList = columns.find((column)=>column.id===column_id)?.tasks
+  const handleEditTaskContent = (column_id: string, task_id: string) => {
 
-    const newTasks = tasksList.map((task)=>{
-      if (task.id===task_id) {
-        return{
+    const newTaskContent = prompt('Enter new name taks')
+    const tasksList = columns.find((column) => column.id === column_id)?.tasks
+
+    const newTasks = tasksList.map((task) => {
+      if (task.id === task_id) {
+        return {
           ...task,
-          content:newTaskContent
+          content: newTaskContent
         }
       }
       return task
     })
 
-    const newColumns = columns.map((column)=>{
-      if (column.id===column_id) {
-        return{
+    const newColumns = columns.map((column) => {
+      if (column.id === column_id) {
+        return {
           ...column,
           tasks: newTasks
         }
       }
       return column
     })
+    setColumns(newColumns)
+  }
+
+  const handleDeleteColumn = (column_id) => {
+    const newColumns = columns.filter((column) => column.id !== column_id)
+
     setColumns(newColumns)
   }
 
@@ -206,10 +212,18 @@ function App() {
             <div className="flex gap-x-10">
 
               {columns.map(column => (
-                
-                <ColumnItem  key={column.id} column={column} onHandleAddTask={handleAddTask} onHandleDeleteTask={handleDeleteTask} onHandleEditTaskContent={handleEditTaskContent} />
+
+                <ColumnItem
+                  key={column.id}
+                  column={column}
+                  onHandleAddTask={handleAddTask}
+                  onHandleDeleteTask={handleDeleteTask}
+                  onHandleEditTaskContent={handleEditTaskContent}
+                  onHandleDeleteColumn={handleDeleteColumn}
+                />
               )
               )}
+              <button className="size-14 bg-slate-50 px-1 py-2 rounded-md bg-green-400">Add</button>
             </div>
           </DragDropContext>
 
