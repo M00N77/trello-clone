@@ -148,6 +148,33 @@ function App() {
     setColumns(newColumns)
   }
 
+  const handleEditTaskContent = (column_id : string, task_id : string) => { 
+    
+    const newTaskContent = prompt('Enter new name taks')
+    const tasksList = columns.find((column)=>column.id===column_id)?.tasks
+
+    const newTasks = tasksList.map((task)=>{
+      if (task.id===task_id) {
+        return{
+          ...task,
+          content:newTaskContent
+        }
+      }
+      return task
+    })
+
+    const newColumns = columns.map((column)=>{
+      if (column.id===column_id) {
+        return{
+          ...column,
+          tasks: newTasks
+        }
+      }
+      return column
+    })
+    setColumns(newColumns)
+  }
+
   return (
     <>
 
@@ -179,8 +206,8 @@ function App() {
             <div className="flex gap-x-10">
 
               {columns.map(column => (
-
-                <ColumnItem  key={column.id} column={column} onHandleAddTask={handleAddTask} onHandleDeleteTask={handleDeleteTask} />
+                
+                <ColumnItem  key={column.id} column={column} onHandleAddTask={handleAddTask} onHandleDeleteTask={handleDeleteTask} onHandleEditTaskContent={handleEditTaskContent} />
               )
               )}
             </div>
