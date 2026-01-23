@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Column } from "./types"
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { v4 as uuidv4 } from 'uuid';
-import TaskItem from "./components/TaskItem";
 import ColumnItem from "./components/ColumnItem";
 
 const initialData: Column[] = [
@@ -28,6 +27,7 @@ const initialData: Column[] = [
   }
 ];
 
+
 function App() {
 
   const [columns, setColumns] = useState(() => {
@@ -49,57 +49,73 @@ function App() {
   }, [columns])
 
   const onDragEnd = (result: any) => {
+    if (result.type === 'TASK') {
+      if (!result.destination) {
+        return;
+      }
 
-    if (!result.destination) {
-      return;
+      if (result.source.droppableId === result.destination.droppableId) {
+        const tasksList = columns.find((column) => column.id === result.destination.droppableId)?.tasks
+        const newTasks = [...tasksList];
+        const [removedTask] = newTasks.splice(result.source.index, 1);
+        newTasks.splice(result.destination.index, 0, removedTask);
+
+        const newColumns = columns.map(column => {
+          if (column.id === result.destination.droppableId) {
+            return {
+              ...column,
+              tasks: newTasks
+            }
+          } else { return column }
+        })
+
+        setColumns(newColumns)
+      } else {
+
+        const sourceColumn = result.source.droppableId
+        const sourceTasksList = columns.find((column) => column.id === sourceColumn)?.tasks
+        const sourceNewTasks = [...sourceTasksList]
+        const [removedTask] = sourceNewTasks.splice(result.source.index, 1)
+
+        const destColumn = result.destination.droppableId
+        const destTasksList = columns.find((column) => column.id === destColumn)?.tasks
+        const destNewTasks = [...destTasksList]
+        destNewTasks.splice(result.destination.index, 0, removedTask)
+
+        const newColumns = columns.map((column) => {
+          if (column.id === sourceColumn) {
+            return {
+              ...column,
+              tasks: sourceNewTasks
+            }
+          }
+          if (column.id === destColumn) {
+            return {
+              ...column,
+              tasks: destNewTasks
+            }
+          }
+          return column
+        })
+
+        setColumns(newColumns)
+      }
     }
 
-    if (result.source.droppableId === result.destination.droppableId) {
-      const tasksList = columns.find((column) => column.id === result.destination.droppableId)?.tasks
-      const newTasks = [...tasksList];
-      const [removedTask] = newTasks.splice(result.source.index, 1);
-      newTasks.splice(result.destination.index, 0, removedTask);
+    if (result.type === 'COLUMN') {
+      if (!result.source.index) {
+        return;
+      }
 
-      const newColumns = columns.map(column => {
-        if (column.id === result.destination.droppableId) {
-          return {
-            ...column,
-            tasks: newTasks
-          }
-        } else { return column }
-      })
+      const columnsList = [...columns];
+      const [removedColumn] = columnsList.splice(result.source.index, 1);
 
-      setColumns(newColumns)
-    } else {
+      
+      columnsList.splice(result.destination.index, 0, removedColumn)
 
-      const sourceColumn = result.source.droppableId
-      const sourceTasksList = columns.find((column) => column.id === sourceColumn)?.tasks
-      const sourceNewTasks = [...sourceTasksList]
-      const [removedTask] = sourceNewTasks.splice(result.source.index, 1)
-
-      const destColumn = result.destination.droppableId
-      const destTasksList = columns.find((column) => column.id === destColumn)?.tasks
-      const destNewTasks = [...destTasksList]
-      destNewTasks.splice(result.destination.index, 0, removedTask)
-
-      const newColumns = columns.map((column) => {
-        if (column.id === sourceColumn) {
-          return {
-            ...column,
-            tasks: sourceNewTasks
-          }
-        }
-        if (column.id === destColumn) {
-          return {
-            ...column,
-            tasks: destNewTasks
-          }
-        }
-        return column
-      })
-
-      setColumns(newColumns)
+      setColumns(columnsList)
     }
+
   }
 
   const handleDeleteTask = (column_id: string, task_id: string) => {
@@ -124,7 +140,7 @@ function App() {
     const taskContent = prompt('Enter task')
     const taskTime = prompt('Enter time')
 
-    if (isNaN(taskTime) || taskTime < 0 || taskTime==='') {
+    if (isNaN(taskTime) || taskTime < 0 || taskTime === '') {
       alert('Please enter correct number...')
       return
     }
@@ -183,7 +199,10 @@ function App() {
 
   const handleAddColumn = () => {
     const columnName = prompt('Enter name column')
-    if (!columnName) return
+    if (!columnName) {
+      alert('Enter correct name column...');
+      return
+    }
 
     const newColumn: Column = {
       id: uuidv4(),
@@ -198,52 +217,61 @@ function App() {
   return (
     <>
 
-      <header className="flex  justify-center items-center">
+      <header className="flex  justify-end items-center">
         <div>
-          <nav>
-            <ul className="flex gap-x-2">
+         
 
-              <li><a href="">Задачи</a></li>
-              <li><a href="">Задачи</a></li>
-              <li><a href="">Задачи</a></li>
-              <li><a href="">Задачи</a></li>
-              <li><a href="">Задачи</a></li>
-              <li><a href="">Задачи</a></li>
-              <li><a href="">Задачи</a></li>
-              <li><a href="">Задачи</a></li>
+              <button className=" bg-slate-50 px-8 py-4 rounded-md bg-green-400" onClick={handleAddColumn} >Add</button>
 
-            </ul>
-          </nav>
+            
         </div>
       </header>
 
       <main className="flex justify-center items-center">
         <div>
 
-          <div>main_header</div>
+          
+
+
+
 
           <DragDropContext onDragEnd={onDragEnd} >
-            <div className="flex gap-x-10">
 
-              {columns.map(column => (
 
-                <ColumnItem
-                  key={column.id}
-                  column={column}
-                  onHandleAddTask={handleAddTask}
-                  onHandleDeleteTask={handleDeleteTask}
-                  onHandleEditTaskContent={handleEditTaskContent}
-                  onHandleDeleteColumn={handleDeleteColumn}
 
-                />
-              )
+            <Droppable droppableId="board" type="COLUMN" direction="horizontal" >
+              {(provided) => (
+                <div className="flex gap-x-10"
+                  ref={provided.innerRef}       // ✅ СЮДА
+                  {...provided.droppableProps}>
+
+                  {columns.map((column, index) => (
+
+                    <ColumnItem
+                      key={column.id}
+                      column={column}
+                      index={index}
+                      onHandleAddTask={handleAddTask}
+                      onHandleDeleteTask={handleDeleteTask}
+                      onHandleEditTaskContent={handleEditTaskContent}
+                      onHandleDeleteColumn={handleDeleteColumn}
+
+                    />
+                  )
+                  )}
+                  {provided.placeholder}
+                </div>
               )}
-              <button className="size-14 bg-slate-50 px-1 py-2 rounded-md bg-green-400" onClick={handleAddColumn} >Add</button>
-            </div>
+            </Droppable>
+            
+
           </DragDropContext>
+
 
         </div>
       </main>
+
+      
     </>
   )
 }
