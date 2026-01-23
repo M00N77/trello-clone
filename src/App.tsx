@@ -198,6 +198,10 @@ function App() {
   }
 
   const handleAddColumn = () => {
+    if (columns.length>=6) {
+      alert('You have reached the limit...')
+      return;
+    }
     const columnName = prompt('Enter name column')
     if (!columnName) {
       alert('Enter correct name column...');
